@@ -5,7 +5,9 @@ const md5 = require("md5");
 module.exports = {
 	async signup(req, res) {
 		const {
+			foto,
 			usuario,
+			email,
 			senha
 		} = req.body;
 
@@ -23,7 +25,9 @@ module.exports = {
 		})
 
 		await user.create({
+			foto: foto,
 			usuario: usuario,
+			email: email,
 			senha: md5(senha + global.SALT_KEY),
 			token: token
 		})

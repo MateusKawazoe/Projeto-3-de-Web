@@ -11,11 +11,13 @@ import "../styles/login.css"
 import logo from '../assets/logo.png'
 
 export default function Login({ history }) {
-    const [user, setUser] = useState("");
+    const [user, setUser] = useState("")
+    const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [passwordConfirm, setpasswordConfirm] = useState("")
     const [visiblePassword, setVisible] = useState(false)
     const [cadastrar, setCadastrar] = useState(false)
+    const emailValidator = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
 
     if(localStorage.getItem('token') !== '') {
         history.push('/main')
@@ -124,17 +126,18 @@ export default function Login({ history }) {
         $('.singin_singup > .password')
             .hide()
             .fadeIn(400)
+        $('.singin_singup > #email')
+            .hide()
+            .fadeIn(400)
         
         var label, button
 
         if(cadastrar) {
-            $('.container').css('max-height', '415.8px')
             $('.singin_singup > h1').text('Entrar')
             label = 'Cadastro'
             button = 'Entrar'
             $('#passwordConfirmError').css('opacity', 0)
         } else {
-            $('.container').css('max-height', '464.8px')
             $('#passwordConfirmError').css('opacity', 1)
             label = 'Entrar'
             button = 'Confirmar'
@@ -155,7 +158,6 @@ export default function Login({ history }) {
                 <form>
                     <div className="header">
                         <img src={logo} alt='logo' className="logo"/>
-                        <p className="tittle">K0nda1 SA</p>
                     </div>
                     <div className='singin_singup'>
                         <h1>Entrar</h1>
@@ -178,7 +180,34 @@ export default function Login({ history }) {
                                 }
                             }}
                         />
-                        <p id="userError">*Usuário deve ter pelo menos 4 letras</p>
+                        <p id="userError" className="error">*Usuário deve ter pelo menos 4 letras</p>
+                        {cadastrar ? (
+                            <div className="inputSignup">
+                                <input
+                                    placeholder="E-mail"
+                                    maxLength="30"
+                                    minLength="3"
+                                    value={email}
+                                    id="email"
+                                    autoComplete="off"
+                                    onChange={(e) => {
+                                        setEmail(e.target.value)
+                                    }}
+                                    onBlur={ () => {
+                                        if(emailValidator.test(email)) {
+                                            $('#email').css('border-color', '#ddd')
+                                            $('#emailError').css('display', 'none')
+                                        } else {
+                                            $('#email').css('border-color', 'red')
+                                            $('#emailError').css('display', 'unset')
+                                        }
+                                    }}
+                                />
+                                <p id="emailError" className="error">*E-mail inválido</p>
+                            </div>
+                        ) : (
+                            <></>
+                        )}
                         <div className="senhaInput">
                             <input
                             placeholder="Senha"
@@ -196,13 +225,17 @@ export default function Login({ history }) {
                                     $('#password').css('border-color', 'red')
                                     $('#passwordError').css('display', 'unset')
                                 }
+                                if(password === passwordConfirm) {
+                                    $('#passwordConfirm').css('border-color', '#ddd')
+                                    $('#passwordConfirmError').css('display', 'none')
+                                }
                             }}
                             onChange={(e) => {
                                 setPassword(e.target.value);
                             }}
                             />
                             {cadastrar ? (
-                                <div>
+                                <div className="visible">
                                     {visiblePassword ? (
                                         <VisibilityOffIcon onClick={handleVisible} className="icon"/> 
                                     ) : (
@@ -213,35 +246,37 @@ export default function Login({ history }) {
                                 <></>
                             )}
                         </div>
-                        <p id="passwordError">*A senha deve ter pelo menos 6 letras</p>
+                        <p id="passwordError" className="error">*A senha deve ter pelo menos 6 caracteres</p>
                         <div className="senhaInput">
                         {cadastrar ? (
-                            <input
-                            placeholder="Confirmar senha"
-                            className="password"
-                            maxLength="30"
-                            minLength="3"
-                            id="passwordConfirm"
-                            autoComplete="off"
-                            value={passwordConfirm}
-                            onChange={(e) => {
-                                setpasswordConfirm(e.target.value)
-                            }}
-                            onBlur={ () => {
-                                if(password === passwordConfirm) {
-                                    $('#passwordConfirm').css('border-color', '#ddd')
-                                    $('#passwordConfirmError').css('display', 'none')
-                                } else {
-                                    $('#passwordConfirm').css('border-color', 'red')
-                                    $('#passwordConfirmError').css('display', 'unset')
-                                }
-                            }}
-                            />
+                            <div className="inputSignup">
+                                <input
+                                    placeholder="Confirmar senha"
+                                    className="password"
+                                    maxLength="30"
+                                    minLength="3"
+                                    id="passwordConfirm"
+                                    autoComplete="off"
+                                    value={passwordConfirm}
+                                    onChange={(e) => {
+                                        setpasswordConfirm(e.target.value)
+                                    }}
+                                    onBlur={ () => {
+                                        if(password === passwordConfirm) {
+                                            $('#passwordConfirm').css('border-color', '#ddd')
+                                            $('#passwordConfirmError').css('display', 'none')
+                                        } else {
+                                            $('#passwordConfirm').css('border-color', 'red')
+                                            $('#passwordConfirmError').css('display', 'unset')
+                                        }
+                                    }}
+                                />
+                                <p id="passwordConfirmError" className="error">*As senhas devem ser iguais</p>
+                            </div>
                         ):(
                             <></>
                         )}
                         </div>
-                        <p id="passwordConfirmError">*As senhas devem ser iguais</p>
                         <div className="buttons_container">
                             <a onClick={handleChange}>Cadastro</a>
                             <button onClick={handleSign}>Entrar</button>

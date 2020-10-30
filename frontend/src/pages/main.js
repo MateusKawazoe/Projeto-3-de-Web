@@ -7,17 +7,6 @@ import Swal from 'sweetalert2'
 
 import '../styles/main.css'
 import logo from '../assets/logo.png'
-import produto from '../assets/produto.png'
-import fornecedor from '../assets/fornecedor.png'
-import cliente from '../assets/cliente.png'
-import compra from '../assets/compra.png'
-import venda from '../assets/venda.png'
-import Produto from './product'
-import Compra from './buy'
-import Venda from './sell'
-import Fornecedor from './distributor'
-import Cliente from './client'
-
 
 export default function Main({ history }) {
     const [selected, setSelected] = useState('')
@@ -111,7 +100,7 @@ export default function Main({ history }) {
                 </div>
                 <ol className="right-header-menu">
                     <button onClick={handleClick}>Sair</button>
-                    <li className="help" onClick={handleHelp}>
+                    <li className="help">
                         <HelpIcon className="icon"/>
                         <p>Ajuda</p>
                     </li>
@@ -124,55 +113,18 @@ export default function Main({ history }) {
                 </li>
                 <li className="line"/>
                 <ul id="navigation" className="functions">
-                    <li id="produto" onClick={handleSelected}>
-                        <img src={produto} alt='produto'/>
-                        Produto
+                    <li id="produto">
                     </li>
-                    <li onClick={handleSelected} id="fornecedor">
-                        <img src={fornecedor} alt='produto'/>
-                        Fornecedor
+                    <li id="fornecedor">
                     </li>
-                    <li onClick={handleSelected} id="cliente">
-                        <img src={cliente} alt='produto'/>
-                        Cliente
+                    <li id="cliente">
                     </li>
-                    <li onClick={handleSelected} id="compra">
-                        <img src={compra} alt='produto'/>
-                        Compra
+                    <li id="compra">
                     </li>
-                    <li onClick={handleSelected} id="venda">
-                        <img src={venda} alt='produto'/>
-                        Venda
+                    <li id="venda">
                     </li>
                 </ul>
             </ol>
-            <div className="layout">
-                {localStorage.getItem('selected') === 'produto' ? (
-                    <Produto/>
-                ) : (
-                    <></>
-                )}
-                {localStorage.getItem('selected') === 'fornecedor' ? (
-                    <Fornecedor/>
-                ) : (
-                    <></>
-                )}
-                {localStorage.getItem('selected') === 'cliente' ? (
-                    <Cliente/>
-                ) : (
-                    <></>
-                )}
-                {localStorage.getItem('selected') === 'compra' ? (
-                    <Compra/>
-                ) : (
-                    <></>
-                )}
-                {localStorage.getItem('selected') === 'venda' ? (
-                    <Venda/>
-                ) : (
-                    <></>
-                )}
-            </div> 
         </div>
     )
 }
