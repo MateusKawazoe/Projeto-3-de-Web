@@ -1,9 +1,11 @@
 import React, {
-    useState
+    useState,
+    useEffect
 } from "react"
 import $ from 'jquery'
 import VisibilityIcon from '@material-ui/icons/Visibility'
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
+import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import api from '../services/api'
 import Swal from 'sweetalert2'
 
@@ -17,10 +19,43 @@ export default function Login({ history }) {
     const [passwordConfirm, setpasswordConfirm] = useState("")
     const [visiblePassword, setVisible] = useState(false)
     const [cadastrar, setCadastrar] = useState(false)
+    const [profilePhoto, setProfilePhoto] = useState('')
     const emailValidator = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
 
     if(localStorage.getItem('token') !== '') {
         history.push('/main')
+    }
+
+    const handlePhoto = (e) => {
+        const file = e.target.files[0]
+        if(file.size/1000000 > 50) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Imagem maior do que 50Mb!',
+            })
+            return
+        }
+        if(file) {
+            showPhoto(file)
+            $('#profile').css('opacity', 1)
+
+            if(file != '') {
+                $('#profile').css('opacity', 0)
+                $('.profilePicture').css('opacity', 1)
+            } else {
+                $('#profile').css('opacity', 1)
+                $('.profilePicture').css('opacity', 0)
+            }
+        }
+    }
+
+    const showPhoto = async (file) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onloadend = () => {
+            setProfilePhoto(reader.result)
+        }
+        return
     }
 
     function handleVisible() {
@@ -47,21 +82,34 @@ export default function Login({ history }) {
         }
 
         if(cadastrar) {
-            if(password === passwordConfirm) {
+            if(password === passwordConfirm && emailValidator.test(email)) {
                 token = await api.post('/user/signup', {
+                    foto: profilePhoto,
                     usuario: user,
-                    senha: password
+                    email: email,
+                    senha: password,
+                    admin: 0
                 })
 
-                if(token.data == 1) {
+                if(token.data === 1) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Usuário já cadastrado',
                     })
                     return
+                } else if(token.data === 2) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'E-mail já cadastrado',
+                    })
+                    return
                 }
                 localStorage.setItem('token', token.data)
                 localStorage.setItem('username', user)
+                localStorage.setItem('photo', profilePhoto)
+                localStorage.setItem('email', email)
+                localStorage.setItem('admin', '')
+                localStorage.setItem('selected', 'perfil')
                 await Swal.fire({
                     position: 'center',
                     icon: 'success',
@@ -95,8 +143,18 @@ export default function Login({ history }) {
                     title: 'Senha inválida!',
                   })
             } else {
+                const data = await api.post('/user/showOne', {
+                    username: user
+                })
                 localStorage.setItem('token', token.data)
                 localStorage.setItem('username', user)
+                localStorage.setItem('photo', data.data.foto)
+                localStorage.setItem('email', data.data.email)
+                localStorage.setItem('admin', '')
+                localStorage.setItem('selected', 'perfil')
+                if(data.data.admin > 0) {
+                    localStorage.setItem('admin', 'ADMIN')
+                }
                 await Swal.fire({
                     position: 'center',
                     icon: 'success',
@@ -112,24 +170,18 @@ export default function Login({ history }) {
     }    
 
     async function handleChange(e) {
+        e.preventDefault()
         $('.singin_singup > h1')
-            .hide()
             .text('Cadastrar')
-            .fadeIn(400)
         $('input')
-            .hide()
             .text('Cadastrar')
-            .fadeIn(400)
-        $('.singin_singup > div')
+        $('.header')
             .hide()
             .fadeIn(400)
-        $('.singin_singup > .password')
+        $('#segredo')
             .hide()
             .fadeIn(400)
-        $('.singin_singup > #email')
-            .hide()
-            .fadeIn(400)
-        
+
         var label, button
 
         if(cadastrar) {
@@ -148,16 +200,46 @@ export default function Login({ history }) {
         $('.buttons_container > button')
             .text(button)
 
-        e.preventDefault()
         setCadastrar(!cadastrar)
-    } 
+    }
 
     return ( 
         <div className="main-container">
             <div className='container'> 
-                <form>
+                <form id="segredo">
                     <div className="header">
-                        <img src={logo} alt='logo' className="logo"/>
+                        {cadastrar ? (
+                            <div className="photo-container">
+                                <AccountCircleIcon id="profile"
+                                    style={{
+                                        width: 150,
+                                        height: 150,
+                                        color: 'rgb(48, 44, 71)',
+                                        cursor: 'pointer'
+                                    }}
+                                />
+                                <div className="profilePicture">
+                                    <img src={profilePhoto} alt='Foto de perfil' id="profilePhoto"/>
+                                </div>
+                                <input
+                                    onChange={handlePhoto}
+                                    type="file"
+                                    className="photo"
+                                    accept="image/x-png,image/gif,image/jpeg"
+                                    onMouseEnter={() => {
+                                        if(!profilePhoto)
+                                            $('#profile').css('opacity', 0.6)
+                                    }}
+                                    onMouseOut={() => {
+                                        if(!profilePhoto)
+                                            $('#profile').css('opacity', 1)
+                                    }}
+                                />
+                                <p>Foto de Perfil</p>
+                            </div>
+                        ) : (
+                            <img src={logo} alt='logo' className="logo"/>
+                        )}
                     </div>
                     <div className='singin_singup'>
                         <h1>Entrar</h1>

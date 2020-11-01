@@ -27,8 +27,8 @@
         color: white;
         align-items: center;
         margin: 0;
-        width: fit-content;
-        margin-left: 30px;
+        width: 100%;
+        margin-left: 10px;
         cursor: pointer;
     }
 
@@ -38,7 +38,7 @@
     }
 
     .main-container > header > .logo > h1{
-        font-size: 25px;
+        font-size: 22px;
         margin-bottom: 0;
     }
 
@@ -110,17 +110,35 @@
     .main-container > .left-menu > .welcome { 
         margin-top: 20px;
         color: #f6f6f6;
-        margin-left: 35px;
+        margin-left: 14px;
+        display: flex;
+        align-items: center;
     }
 
-    .main-container > .left-menu > .welcome > h2 {
-        margin-bottom: 5px;
-        text-shadow: 1px 1px;
-    }
+        .main-container > .left-menu > .welcome > .profilePhoto {
+            width: 50px;
+            border-radius: 25px;
+            height: 50px;
+            margin-right: 10px;
+        }
 
-    .main-container > .left-menu > .welcome > p {
-        font-size: 18px;
-    }
+            .main-container > .left-menu > .welcome > .user-email > p {
+                font-size: 14px;
+            }
+
+            .main-container > .left-menu > .welcome > .user-email > .username-admin {
+                display: flex;
+            }
+
+            .main-container > .left-menu > .welcome > .user-email > .username-admin > h2 {
+                margin-bottom: 5px;
+                font-size: 18px;
+            }
+
+            .main-container > .left-menu > .welcome > .user-email > .username-admin > h2:last-child {
+                color: red;
+                margin-left: 10px; 
+            }
 
     .main-container > .left-menu > .line {
         margin-top: 20px;

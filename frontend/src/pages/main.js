@@ -6,10 +6,10 @@ import HelpIcon from '@material-ui/icons/Help'
 import Swal from 'sweetalert2'
 
 import '../styles/main.css'
-import logo from '../assets/logo.png'
 
 export default function Main({ history }) {
     const [selected, setSelected] = useState('')
+    const {admin, setAdming} = useState('')
 
     if(localStorage.getItem('token') === '') {
         history.push('/')
@@ -37,6 +37,7 @@ export default function Main({ history }) {
     }
 
     function handleHelp() {
+        console.log(localStorage.getItem('photo'))
         Swal.mixin({
             confirmButtonText: 'Próximo &rarr;',
             showCancelButton: true,
@@ -82,7 +83,9 @@ export default function Main({ history }) {
             if (result.isConfirmed) {
                 localStorage.setItem('token', '')
                 localStorage.setItem('username', '')
-                localStorage.setItem('selected', '')
+                localStorage.setItem('photo', '')
+                localStorage.setItem('email', '')
+                localStorage.setItem('selected', 'perfil')
                 history.push('/')
             }
             return
@@ -94,13 +97,11 @@ export default function Main({ history }) {
             <header>
                 <div className="background"/>
                 <div className="logo">
-                    <img src={logo} alt="logo"></img>
-                    <h1>K0nda1</h1>
-                    <p>SA</p>
+                    <h1>Cats Random Defense</h1>
                 </div>
                 <ol className="right-header-menu">
                     <button onClick={handleClick}>Sair</button>
-                    <li className="help">
+                    <li className="help" onClick={handleHelp}>
                         <HelpIcon className="icon"/>
                         <p>Ajuda</p>
                     </li>
@@ -108,20 +109,26 @@ export default function Main({ history }) {
             </header>
             <ol className="left-menu">
                 <li className="welcome">
-                    <h2>Bem vindo</h2>
-                    <p>{localStorage.getItem('username')}</p>
+                    <img src={localStorage.getItem('photo')} alt={'profilePhoto'} className="profilePhoto"/>
+                    <div className="user-email">
+                        <div className="username-admin">
+                            <h2>{localStorage.getItem('username')}</h2>
+                            <h2>{localStorage.getItem('admin')}</h2>
+                         </div>
+                        
+                        <p>{localStorage.getItem('email')}</p>
+                    </div>
                 </li>
                 <li className="line"/>
                 <ul id="navigation" className="functions">
-                    <li id="produto">
+                    <li id="perfil" onClick={handleSelected}>
+                        Perfil
                     </li>
-                    <li id="fornecedor">
+                    <li onClick={handleSelected} id="timeline">
+                        Timeline
                     </li>
-                    <li id="cliente">
-                    </li>
-                    <li id="compra">
-                    </li>
-                    <li id="venda">
+                    <li onClick={handleSelected} id="busca">
+                        Busca
                     </li>
                 </ul>
             </ol>

@@ -17,7 +17,8 @@ const userSchema = new Schema({
     token: {
         type: String,
         required: true
-    }
+    },
+    admin: type = Number
 }, {
     timestamps: true
 })
