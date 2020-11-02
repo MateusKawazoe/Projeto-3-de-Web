@@ -3,7 +3,10 @@ const auth_token = require('../services/auth')
 const md5 = require("md5");
 const {
 	cloudinary
-} = require('../services/cloudinary')
+} = require('../services/cloudinary');
+const {
+	update
+} = require("../model/user");
 
 module.exports = {
 	async signup(req, res) {
@@ -14,7 +17,7 @@ module.exports = {
 			senha,
 			admin
 		} = req.body;
-		var profilePhoto = ''
+		var photo = ''
 
 		const userExists = await user.findOne({
 			usuario
@@ -38,14 +41,16 @@ module.exports = {
 		})
 
 		if (foto) {
-			const photo = await cloudinary.uploader.upload(foto, {
+			photo = await cloudinary.uploader.upload(foto, {
 				upload_preset: 'ml_default'
 			})
-			profilePhoto = photo.url
 		}
 
-		await user.create({
-			foto: profilePhoto,
+		const aux = await user.create({
+			foto: {
+				url: photo.url,
+				_id: photo.public_id
+			},
 			usuario: usuario,
 			email: email,
 			senha: md5(senha + global.SALT_KEY),
@@ -53,7 +58,7 @@ module.exports = {
 			admin: admin
 		})
 
-		return res.json(token)
+		return res.json(aux)
 	},
 
 	async signin(req, res) {
@@ -95,7 +100,9 @@ module.exports = {
 						}
 					})
 
-					return res.status(201).json(auxToken)
+					const aux = await user.findOne({ usuario })
+
+					return res.json(aux)
 				} else {
 					return res.json(2)
 				}
@@ -112,17 +119,84 @@ module.exports = {
 			username
 		} = req.body
 
-		console.log(username)
-
 		const exists = await user.findOne({
 			usuario: username
 		})
-		console.log(exists)
-		if(!exists) {
+
+		if (!exists) {
 			return res.json(1)
 		}
 
 		return res.json(exists)
+	},
+
+	async update(req, res) {
+		const {
+			usuario,
+			email,
+			foto
+		} = req.body
+
+		const exists = await user.findOne({ usuario })
+
+		if(!exists) {
+			return res.json(1)
+		}
+
+		var equals = {
+			email: '',
+			foto: {
+				url: '',
+				_id: ''
+			}
+		}
+
+		if(foto != exists.foto.url) {
+			if(exists.foto.url) {
+				await cloudinary.uploader.destroy(exists.foto._id, {
+					upload_preset: 'ml_default'
+				})
+			}
+			const aux = await cloudinary.uploader.upload(foto, {
+				upload_preset: 'ml_default'
+			})
+			equals.foto.url = aux.url
+			equals.foto._id = aux.public_id
+		} else {
+			equals.foto._id = 1
+		}
+ 
+		if(email != exists.email) {
+			equals.email = email
+		} else {
+			equals.email = exists.email
+		}
+
+		if(equals.foto._id == 1) {
+			await user.updateOne({
+				_id: exists._id
+			}, {
+				$set: {
+					email: equals.email
+				}
+			})
+		} else {
+			await user.updateOne({
+				_id: exists._id
+			}, {
+				$set: {
+					'foto.url': equals.foto.url,
+					'foto._id': equals.foto._id,
+					email: equals.email
+				}
+			})
+		}
+
+		const aux = await user.findOne({
+			usuario
+		})
+
+		return res.json(aux)
 	},
 
 	async delete(req, res) {
@@ -130,8 +204,24 @@ module.exports = {
 			usuario
 		} = req.body
 
-		return res.json(await user.deleteOne({
+		const exists = await user.findOne({
 			usuario
-		}))
+		})
+
+		if (!exists) {
+			return res.json(1)
+		}
+
+		if (exists.foto._id) {
+			await cloudinary.uploader.destroy(exists.foto._id, {
+				upload_preset: 'ml_default'
+			})
+		}
+
+		await user.deleteOne({
+			usuario
+		})
+
+		return res.json(2)
 	}
 }

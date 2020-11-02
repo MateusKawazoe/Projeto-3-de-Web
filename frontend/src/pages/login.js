@@ -8,6 +8,7 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import api from '../services/api'
 import Swal from 'sweetalert2'
+import Loading from '../common/loading'
 
 import "../styles/login.css"
 import logo from '../assets/logo.png'
@@ -20,6 +21,7 @@ export default function Login({ history }) {
     const [visiblePassword, setVisible] = useState(false)
     const [cadastrar, setCadastrar] = useState(false)
     const [profilePhoto, setProfilePhoto] = useState('')
+    const [loading, setLoading] = useState(false)
     const emailValidator = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
 
     if(localStorage.getItem('token') !== '') {
@@ -83,6 +85,7 @@ export default function Login({ history }) {
 
         if(cadastrar) {
             if(password === passwordConfirm && emailValidator.test(email)) {
+                setLoading(true)
                 token = await api.post('/user/signup', {
                     foto: profilePhoto,
                     usuario: user,
@@ -96,17 +99,25 @@ export default function Login({ history }) {
                         icon: 'error',
                         title: 'Usuário já cadastrado',
                     })
+                    setLoading(false)
                     return
                 } else if(token.data === 2) {
                     Swal.fire({
                         icon: 'error',
                         title: 'E-mail já cadastrado',
                     })
+                    setLoading(false)
                     return
                 }
-                localStorage.setItem('token', token.data)
+                if(token.data.foto) {
+                    localStorage.setItem('photo', token.data.foto.url)
+                    localStorage.setItem('photo_id', token.data.foto._id)
+                }
+                if(token.data.admin > 0) {
+                    localStorage.setItem('admin', 'ADMIN')
+                }
+                localStorage.setItem('token', token.data.token)
                 localStorage.setItem('username', user)
-                localStorage.setItem('photo', profilePhoto)
                 localStorage.setItem('email', email)
                 localStorage.setItem('admin', '')
                 localStorage.setItem('selected', 'perfil')
@@ -117,8 +128,10 @@ export default function Login({ history }) {
                     showConfirmButton: false,
                     timer: 1500
                 })
+                setLoading(false)
                 history.push('/main')
             } else {
+                setLoading(false)
                 Swal.fire({
                     icon: 'error',
                     title: 'As senhas devem ser iguais!',
@@ -127,34 +140,37 @@ export default function Login({ history }) {
 
             
         } else {
+            setLoading(true)
             token = await api.post('/user/signin', {
                 usuario: user,
                 senha: password
             })
 
             if(token.data === 1) {
+                setLoading(false)
                 Swal.fire({
                     icon: 'error',
                     title: 'Usuário não existe!',
                   })
             } else if(token.data === 2) {
+                setLoading(false)
                 Swal.fire({
                     icon: 'error',
                     title: 'Senha inválida!',
                   })
             } else {
-                const data = await api.post('/user/showOne', {
-                    username: user
-                })
-                localStorage.setItem('token', token.data)
-                localStorage.setItem('username', user)
-                localStorage.setItem('photo', data.data.foto)
-                localStorage.setItem('email', data.data.email)
-                localStorage.setItem('admin', '')
-                localStorage.setItem('selected', 'perfil')
-                if(data.data.admin > 0) {
+                if(token.data.foto) {
+                    localStorage.setItem('photo', token.data.foto.url)
+                    localStorage.setItem('photo_id', token.data.foto._id)
+                }
+                if(token.data.admin == 1) {
                     localStorage.setItem('admin', 'ADMIN')
                 }
+                localStorage.setItem('token', token.data.token)
+                localStorage.setItem('username', user)
+                localStorage.setItem('email', token.data.email)
+                localStorage.setItem('selected', 'perfil')
+                
                 await Swal.fire({
                     position: 'center',
                     icon: 'success',
@@ -162,6 +178,7 @@ export default function Login({ history }) {
                     showConfirmButton: false,
                     timer: 1500
                 })
+                await setLoading(false)
                 history.push('/main')
             }
         }
@@ -205,6 +222,9 @@ export default function Login({ history }) {
 
     return ( 
         <div className="main-container">
+            {loading && (
+                <Loading/>
+            )}
             <div className='container'> 
                 <form id="segredo">
                     <div className="header">

@@ -1,7 +1,10 @@
 const { Schema, model } = require('mongoose')
 
 const userSchema = new Schema({
-    foto: type = String,
+    foto: {
+        url: type = String,
+        _id: type = String
+    },
     usuario: {
         type: String,
         required: true

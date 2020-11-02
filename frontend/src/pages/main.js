@@ -4,12 +4,19 @@ import React, {
 import $ from 'jquery'
 import HelpIcon from '@material-ui/icons/Help'
 import Swal from 'sweetalert2'
+import api from '../services/api'
+import Perfil from '../components/perfil'
+import Timeline from '../components/timeline'
+import Busca from '../components/busca'
+import Loading from '../common/loading'
 
 import '../styles/main.css'
 
 export default function Main({ history }) {
     const [selected, setSelected] = useState('')
-    const {admin, setAdming} = useState('')
+    const [photo, setPhoto] = useState('')
+    const [loading, setLoading] = useState(false)
+    const [admin, setAdmin] = useState('')
 
     if(localStorage.getItem('token') === '') {
         history.push('/')
@@ -37,7 +44,6 @@ export default function Main({ history }) {
     }
 
     function handleHelp() {
-        console.log(localStorage.getItem('photo'))
         Swal.mixin({
             confirmButtonText: 'Próximo &rarr;',
             showCancelButton: true,
@@ -84,7 +90,9 @@ export default function Main({ history }) {
                 localStorage.setItem('token', '')
                 localStorage.setItem('username', '')
                 localStorage.setItem('photo', '')
+                localStorage.setItem('photo_id', '')
                 localStorage.setItem('email', '')
+                localStorage.setItem('admin', '')
                 localStorage.setItem('selected', 'perfil')
                 history.push('/')
             }
@@ -92,8 +100,30 @@ export default function Main({ history }) {
         })  
     }
 
+    async function loadData() {
+        const aux = await api.post('/user/showOne', {
+            username: localStorage.getItem('username')
+        })
+
+        if(aux.data.admin) {
+            setAdmin('ADMIN')
+        }
+        if(aux.data.foto) {
+            setPhoto(aux.data.foto.url)
+            localStorage.setItem('photo', aux.data.foto.url)
+            localStorage.setItem('email', aux.data.email)
+        }
+    }
+
+    useEffect(() => {
+        loadData()
+    }, [photo])
+
     return(
         <div className="main-container">
+            {loading && (
+                <Loading/>
+            )}
             <header>
                 <div className="background"/>
                 <div className="logo">
@@ -109,11 +139,11 @@ export default function Main({ history }) {
             </header>
             <ol className="left-menu">
                 <li className="welcome">
-                    <img src={localStorage.getItem('photo')} alt={'profilePhoto'} className="profilePhoto"/>
+                    <img src={photo} alt={'profilePhoto'} className="profilePhoto"/>
                     <div className="user-email">
                         <div className="username-admin">
                             <h2>{localStorage.getItem('username')}</h2>
-                            <h2>{localStorage.getItem('admin')}</h2>
+                            <h2>{admin}</h2>
                          </div>
                         
                         <p>{localStorage.getItem('email')}</p>
@@ -132,6 +162,23 @@ export default function Main({ history }) {
                     </li>
                 </ul>
             </ol>
+            <div className="layout">
+                {localStorage.getItem('selected') === 'perfil' ? (
+                    <Perfil history={history} setLoading={setLoading}/>
+                ) : (
+                    <></>
+                )}
+                {localStorage.getItem('selected') === 'timeline' ? (
+                    <Timeline/>
+                ) : (
+                    <></>
+                )}
+                {localStorage.getItem('selected') === 'busca' ? (
+                    <Busca/>
+                ) : (
+                    <></>
+                )}
+            </div> 
         </div>
     )
 }
