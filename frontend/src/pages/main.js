@@ -164,12 +164,12 @@ export default function Main({ history }) {
             </ol>
             <div className="layout">
                 {localStorage.getItem('selected') === 'perfil' ? (
-                    <Perfil history={history} setLoading={setLoading}/>
+                    <Perfil history={history} setLoading={setLoading} setFoto={setPhoto}/>
                 ) : (
                     <></>
                 )}
                 {localStorage.getItem('selected') === 'timeline' ? (
-                    <Timeline/>
+                    <Timeline setLoading={setLoading}/>
                 ) : (
                     <></>
                 )}

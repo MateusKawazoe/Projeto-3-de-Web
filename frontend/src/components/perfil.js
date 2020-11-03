@@ -7,7 +7,7 @@ import cat from '../assets/profile-cat.png'
 import catEdit from '../assets/profile-edit-cat.png'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 
-export default function Perfil({ history, setLoading }) {
+export default function Perfil({ history, setLoading, setFoto }) {
     const [photo, setPhoto] = useState(localStorage.getItem('photo'))
     const [editar, setEditar] = useState(true)
     const [user, setUser] = useState(localStorage.getItem('username'))
@@ -38,6 +38,7 @@ export default function Perfil({ history, setLoading }) {
                 if(aux.data != 1) {
                     localStorage.setItem('photo', aux.data.foto.url)
                     localStorage.setItem('email', aux.data.email)
+                    setFoto(aux.data.foto.url)
                     await Swal.fire({
                         position: 'center',
                         icon: 'success',

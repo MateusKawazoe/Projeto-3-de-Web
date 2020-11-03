@@ -1,5 +1,6 @@
 const express = require('express')
 const userController = require('./controllers/userController')
+const publicController = require('./controllers/publicController')
 const routes = express.Router();
 
 // user routes--
@@ -13,5 +14,12 @@ routes.post('/user/showOne', userController.showOne)
 
 // --user routes
 
+// --public routes
+
+routes.post('/public/store', publicController.store)
+routes.post('/public/showMany', publicController.showMany)
+routes.post('/public/searchPosts', publicController.searchPosts)
+
+// --public routes
 
 module.exports = routes

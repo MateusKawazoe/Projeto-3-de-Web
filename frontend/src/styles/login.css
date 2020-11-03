@@ -5,7 +5,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
+    z-index: 999;
 }
 
 .loading-background {
@@ -100,7 +100,7 @@ h1 {
     width: 124px;
     right: 12px;
     border: solid 1px black;
-    bottom: 34px;
+    bottom: 40px;
     display: flex;
     justify-content: center;
     align-items: center;

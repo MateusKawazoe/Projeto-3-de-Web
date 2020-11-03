@@ -1,11 +1,9 @@
 const { Schema, model } = require('mongoose')
-const { type } = require('os')
 
 const publicSchema = new Schema({
-    title: type = String,
+    photo: type = String,
     owner: {
-        photo: type = String,
-        username: type = String,
+        type: String,
         required: true
     },
     type: {
@@ -13,10 +11,10 @@ const publicSchema = new Schema({
         required: true
     },
     data: {
-        url: type = String,
-        _id: type = String,
+        type: String,
         required: true
-    },
+    }, 
+}, {
     timestamps: true
 })
 

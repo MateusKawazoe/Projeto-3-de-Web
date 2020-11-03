@@ -6,33 +6,33 @@ const {
 module.exports = {
     async store(req, res) {
         const {
-            title,
             owner,
             data,
             type
         } = req.body
         var content = data
 
-        const exists = await public.findOne({
-            title,
-            owner,
-            data
-        })
-
-        if (exists) {
-            return res.json(1)
+        if (type == 0) {
+            return
         }
 
-        if (type > 1 && data) {
+        if (type == 2 && data) {
             const photo = await cloudinary.uploader.upload(data, {
                 upload_preset: 'ml_default'
             })
-            content = photo
+            content = photo.url
+
+        } else if (type == 3 && data) {
+            const video = await cloudinary.uploader.upload_large(data, {
+                resource_type: 'video',
+                chunk_size: 600000
+            })
+            content = video.url
         }
 
         const aux = await public.create({
-            title: title,
-            owner: owner,
+            photo: owner.photo,
+            owner: owner.username,
             data: content,
             type: type
         })
@@ -46,14 +46,24 @@ module.exports = {
             type
         } = req.body
 
+        if(type.length == 0) {
+            return res.json(await public.find().sort({
+                createdAt: -1
+            }))
+        }
+
         if (owner) {
             if (type) {
                 const aux = await public.find({
                     owner: owner,
-                    type: { $in: type }
+                    type: {
+                        $in: type
+                    }
+                }).sort({
+                    createdAt: -1
                 })
 
-                if(aux) {
+                if (aux) {
                     return res.json(aux)
                 } else {
                     return res.json(1)
@@ -62,6 +72,8 @@ module.exports = {
 
             const aux = await public.find({
                 owner: owner
+            }).sort({
+                createdAt: -1
             })
 
             if (aux) {
@@ -69,24 +81,34 @@ module.exports = {
             } else {
                 return res.json(1)
             }
-        }else if (type) {
+        } else if (type) {
             const aux = await public.find({
-                type: { $in: type }
+                type: {
+                    $in: type
+                }
+            }).sort({
+                createdAt: -1
             })
 
-            if(aux) {
+            if (aux) {
                 return res.json(aux)
             } else {
                 return res.json(1)
             }
         } else {
-            const aux = await public.find()
-
-            if(aux) {
-                return res.json(aux)
-            } else {
-                return res.json(1)
-            }
+            return res.json(1)
         }
+    },
+
+    async showMany(req, res) {
+        const aux = await public.find().sort({
+            createdAt: -1
+        })
+
+        if (!aux) {
+            return res.json(1)
+        }
+
+        return res.json(aux)
     }
 }

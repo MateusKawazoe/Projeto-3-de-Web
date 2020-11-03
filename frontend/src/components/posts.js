@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import '../styles/posts.css'
-import api from '../services/api'
-import $ from 'jquery'
-import Swal from 'sweetalert2'
+import video from 'cloudinary-video-player'
 
-export default function Posts({ type }) {
+export default function Posts({ type, data }) {
     
     switch(type) {
         case 1:
             return (
-                <div>
-
+                <div className="data-container">
+                    <label>{data}</label>
                 </div>
             )
         
         case 2:
             return (
-                <div>
-
+                <div className="data-container">
+                    <img src={data} className="post-data"/>
                 </div>
             )
 
         case 3: 
             return (
-                <div>
-
+                <div className="data-container">
+                    <video controls style={{'width': '100%'}}>
+                        <source src={data}/>
+                    </video>
                 </div>
             )
     }
